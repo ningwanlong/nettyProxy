@@ -38,6 +38,9 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 
     private final Bootstrap b = new Bootstrap();
 
+    private static final String oSocketIp = "10.1.30.240";
+    private static final int oSocketPort = 1080;
+
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final SocksMessage message) throws Exception {
         if (message instanceof Socks4CommandRequest) {
@@ -73,7 +76,16 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .option(ChannelOption.SO_KEEPALIVE, true)
-                    .handler(new DirectClientHandler(promise));
+                    .handler(new ChannelInitializer<SocketChannel>(){
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline()
+                                    .addLast(new Socks5ProxyHandler(new InetSocketAddress(oSocketIp, oSocketPort)))
+                                    .addLast(new DirectClientHandler(promise));
+                        }
+                    })
+//                    .handler(new DirectClientHandler(promise));
+            ;
 
             String inetHost = request.dstAddr();
             int inetPort = request.dstPort();
@@ -135,7 +147,7 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new Socks5ProxyHandler(new InetSocketAddress("10.1.30.240", 1080)))
+                                    .addLast(new Socks5ProxyHandler(new InetSocketAddress(oSocketIp, oSocketPort)))
                                     .addLast(new DirectClientHandler(promise));
                         }
                     })
