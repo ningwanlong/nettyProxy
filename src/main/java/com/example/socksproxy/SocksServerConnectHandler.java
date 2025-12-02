@@ -38,7 +38,7 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 
     private final Bootstrap b = new Bootstrap();
 
-    private static final String oSocketIp = "10.1.30.240";
+    private static final String oSocketIp = "127.0.01";
     private static final int oSocketPort = 1080;
 
     @Override
